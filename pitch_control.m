@@ -16,6 +16,11 @@ F_model = eye(3)+[-0.313 56.7 0; -0.0139 -0.426 0; 0 56.7 0]*dt;  % F = A
 G_model = [0.232; 0.0203; 0]*dt;                                  % G = B
 H_sensor = [0 0 1];                                                % H = C
 
+% Boeing variables
+max_deflection_angle = 20;%deg2rad(20);
+min_deflection_angle = -max_deflection_angle;
+delta_theta_max = (max_deflection_angle - min_deflection_angle) / (2 / dt);
+
 % Kalman variables
 Q_kalman =eye(3)* 0.01; % Model uncertainty
 R_kalman = 0.01;        % Sensor uncertainty
@@ -43,11 +48,23 @@ for i=4:3:3*N
     Aeq(i:i+2,3*N+(i+2)/3) = -G_model;
 end
 
-max_deflection_angle = 20;%deg2rad(20);
-min_deflection_angle = -max_deflection_angle;
-
 lb = [ones(3*N,1) * (-inf);ones(N,1) * min_deflection_angle];
 ub = [ones(3*N,1) * inf;ones(N,1) * max_deflection_angle];
+
+Aineq = [zeros((N-1)*2,N)];
+
+for i=1:N-1
+    Aineq(i*2-1,i) = -1;
+    Aineq(i*2-1,i+1) = 1;
+    
+    Aineq(i*2-1+1,i) = 1;
+    Aineq(i*2-1+1,i+1) = -1;
+end
+
+Aineq = [zeros((N-1)*2,3*N) Aineq];
+
+bineq = ones((N-1)*2,1) * delta_theta_max;
+
 
 %% MPC
 
@@ -56,7 +73,7 @@ x_vec = [];
 
 for index = 0:size(t,2)-1
     % Open loop control prediction
-    [x_N, u_N, u] = open_loop_control(N, theta_ref, H_cost, Aeq, F_model, xhat, lb, ub);
+    [x_N, u_N, u] = open_loop_control(N, theta_ref, H_cost, Aeq, F_model, Aineq, bineq, xhat, lb, ub);
 
     % Get kalman state estimate
     [xhat,x,Pplus] = KF_function(F_model,G_model,H_sensor,Q_kalman,R_kalman,u,dt,x,xhat,Pplus);
