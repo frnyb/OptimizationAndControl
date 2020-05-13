@@ -6,6 +6,7 @@ close all;
 
 dt = 0.001;
 tf = 10;
+t   = dt:dt:tf;
 
 % system description
 
@@ -51,7 +52,7 @@ end
 
 %% Plotting
 figure(1);
-subplot(4,1,1)
+subplot(3,1,1)
 plot(t,xArray(1,:), 'k')
 hold on
 plot(t,xhatArray(1,:), 'r:')
@@ -75,13 +76,4 @@ plot(t,xhatArray(3,:), 'r:')
 grid on;
 grid minor
 ylabel('x_3')
-set(gca)
-subplot(4,1,4)
-plot(t,xArray(4,:), 'k')
-hold on
-plot(t,xhatArray(4,:), 'r:')
-grid on;
-grid minor
-ylabel('x_4')
-xlabel('Time (s)')
 set(gca)
