@@ -1,4 +1,4 @@
-function [xhat,x,Pplus]=KF_function(F,G,H,Q,R,u,dt,x_init,xhat_init,Pplus_init)
+function [xhat,x,Pplus,y]=KF_function(F,G,H,Q,R,u,dt,x_init,xhat_init,Pplus_init)
  
     
     %----INPUT----%
@@ -23,6 +23,7 @@ function [xhat,x,Pplus]=KF_function(F,G,H,Q,R,u,dt,x_init,xhat_init,Pplus_init)
     %----Set values----%
     
 Noise_Q=ones(size(Q,1),1)*randn; % This is Nx1 matrix where Q= NxN
+
 Noise_R=ones(size(R,1),1)*randn; % This is 1x1
 
 %The inits
